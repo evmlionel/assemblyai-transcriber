@@ -118,11 +118,18 @@ export function TranscriptViewer({ transcript, searchQuery = "" }: TranscriptVie
     return <div className="p-4 text-center text-muted-foreground">No transcript available</div>
   }
 
-  const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60)
-    const seconds = Math.floor(timeInSeconds % 60)
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-  }
+  const formatTime = (timeInMillis: number) => {
+    if (isNaN(timeInMillis) || timeInMillis < 0) {
+      return "00:00:00"; // Handle invalid input gracefully
+    }
+    const totalSeconds = Math.floor(timeInMillis / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    // Format as HH:MM:SS
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
 
   const copySegmentText = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -130,7 +137,6 @@ export function TranscriptViewer({ transcript, searchQuery = "" }: TranscriptVie
     toast({
       title: "Copied to clipboard",
       description: "The text has been copied to your clipboard",
-      variant: "success",
     })
     setTimeout(() => setCopied(false), 2000)
   }
@@ -149,7 +155,6 @@ export function TranscriptViewer({ transcript, searchQuery = "" }: TranscriptVie
         toast({
           title: "Bookmark added",
           description: "Segment has been bookmarked for reference",
-          variant: "success",
         })
       }
       return newBookmarks
