@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { History, Clock, FileText, Trash2 } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 import { motion } from "framer-motion"
 
 interface RecentTranscriptionsProps {
@@ -24,9 +26,30 @@ export function RecentTranscriptions({ onSelectTranscript }: RecentTranscription
   }, [])
 
   const removeTranscript = (id: string|number) => {
+    const removed = recentTranscripts.find((t) => t.id === id)
     const updated = recentTranscripts.filter((t) => t.id !== id)
     setRecentTranscripts(updated)
     localStorage.setItem("recentTranscripts", JSON.stringify(updated))
+
+    // show undo toast
+    if (removed) {
+      toast({
+        title: "Transcript deleted",
+        description: `${removed.name} removed`,
+        action: (
+          <ToastAction
+            altText="Undo"
+            onClick={() => {
+              const restored = [removed, ...updated]
+              setRecentTranscripts(restored)
+              localStorage.setItem("recentTranscripts", JSON.stringify(restored))
+            }}
+          >
+            Undo
+          </ToastAction>
+        ),
+      })
+    }
   }
 
   return (
@@ -70,7 +93,10 @@ export function RecentTranscriptions({ onSelectTranscript }: RecentTranscription
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 opacity-50 hover:opacity-100"
-                  onClick={() => removeTranscript(transcript.id)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeTranscript(transcript.id)
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

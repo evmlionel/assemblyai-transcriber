@@ -13,7 +13,6 @@ Our AssemblyAI transcription application successfully transcribes audio content 
 
 ### 2. UI/UX Refinements
 - [ ] Add progress indicators during transcription processing
-- [ ] Implement a dark/light mode toggle
 - [ ] Create a more accessible UI with improved contrast and keyboard navigation
 - [ ] Add transcript download options (TXT, SRT, VTT, JSON)
 
