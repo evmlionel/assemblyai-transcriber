@@ -61,7 +61,6 @@ export function DropZone({ onFileSelected, selectedFile, isUploading }: DropZone
   return (
     <div className="space-y-4">
       <motion.div
-        {...getRootProps()}
         className={cn(
           "border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors",
           isDragActive
@@ -73,21 +72,23 @@ export function DropZone({ onFileSelected, selectedFile, isUploading }: DropZone
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
       >
-        <input {...getInputProps()} />
-        <div className="flex flex-col items-center justify-center gap-3">
-          <motion.div
-            className="bg-primary/10 rounded-full p-4"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: isDragActive ? 1.1 : 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <Upload className="h-8 w-8 text-primary" />
-          </motion.div>
-          <div>
-            <p className="font-medium text-lg">
-              {selectedFile ? "Replace file" : "Drag & drop your audio or video file"}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">or click to browse your files</p>
+        <div {...getRootProps()} className="outline-none">
+          <input {...getInputProps()} />
+          <div className="flex flex-col items-center justify-center gap-3">
+            <motion.div
+              className="bg-primary/10 rounded-full p-4"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: isDragActive ? 1.1 : 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <Upload className="h-8 w-8 text-primary" />
+            </motion.div>
+            <div>
+              <p className="font-medium text-lg">
+                {selectedFile ? "Replace file" : "Drag & drop your session recording (max 100MB)"}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">or click to select a file</p>
+            </div>
           </div>
         </div>
       </motion.div>

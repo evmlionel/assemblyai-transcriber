@@ -9,7 +9,7 @@ import { ToastAction } from "@/components/ui/toast"
 import { motion } from "framer-motion"
 
 interface RecentTranscriptionsProps {
-  onSelectTranscript?: (transcript: any) => void
+  onSelectTranscript?: (id: string | number) => void
 }
 
 export function RecentTranscriptions({ onSelectTranscript }: RecentTranscriptionsProps) {
@@ -30,6 +30,13 @@ export function RecentTranscriptions({ onSelectTranscript }: RecentTranscription
     const updated = recentTranscripts.filter((t) => t.id !== id)
     setRecentTranscripts(updated)
     localStorage.setItem("recentTranscripts", JSON.stringify(updated))
+
+    // Also remove the full transcript data from localStorage
+    try {
+      localStorage.removeItem(`transcript_${id}`);
+    } catch (error) {
+      console.error("Failed to remove full transcript from localStorage:", error);
+    }
 
     // show undo toast
     if (removed) {
@@ -71,7 +78,7 @@ export function RecentTranscriptions({ onSelectTranscript }: RecentTranscription
                 exit={{ opacity: 0, x: 20 }}
                 whileHover={{ scale: 1.02 }}
                 className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-primary/10 transition"
-                onClick={() => onSelectTranscript?.(transcript.transcript)}
+                onClick={() => onSelectTranscript?.(transcript.id)}
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/10 p-2 rounded-full">

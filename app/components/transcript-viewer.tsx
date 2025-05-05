@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Clock, Copy, CheckCheck, Bookmark, BookmarkCheck } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { motion } from "framer-motion"
@@ -20,6 +21,7 @@ interface TranscriptSegment {
 
 interface TranscriptViewerProps {
   transcript: {
+    id?: string
     text: string
     utterances?: TranscriptSegment[]
     words?: TranscriptSegment[]
@@ -36,6 +38,38 @@ export function TranscriptViewer({ transcript, searchQuery = "" }: TranscriptVie
   const [filteredSegments, setFilteredSegments] = useState<TranscriptSegment[]>([])
   const activeSegmentRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
+
+  // --- localStorage Key for Bookmarks ---
+  const getBookmarkStorageKey = () => {
+    // Use transcript ID if available, otherwise a generic key
+    // NOTE: This assumes only one transcript is actively viewed/bookmarked at a time
+    // if using the generic key. A better approach might involve passing a unique ID.
+    return `bookmarks_${transcript?.id || 'current'}`;
+  }
+
+  // --- Load bookmarks on mount/transcript change ---
+  useEffect(() => {
+    const storageKey = getBookmarkStorageKey();
+    try {
+      const storedBookmarks = localStorage.getItem(storageKey);
+      if (storedBookmarks) {
+        setBookmarkedSegments(new Set(JSON.parse(storedBookmarks)));
+      }
+    } catch (error) {
+      console.error("Failed to load bookmarks from localStorage:", error);
+      setBookmarkedSegments(new Set()); // Reset on error
+    }
+  }, [transcript?.id]); // Reload if transcript ID changes
+
+  // --- Save bookmarks when they change ---
+  useEffect(() => {
+    const storageKey = getBookmarkStorageKey();
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(Array.from(bookmarkedSegments)));
+    } catch (error) {
+      console.error("Failed to save bookmarks to localStorage:", error);
+    }
+  }, [bookmarkedSegments, transcript?.id]);
 
   // --- Robust speaker grouping ---
   // 1. Try to auto-detect the speaker property key
@@ -90,6 +124,25 @@ export function TranscriptViewer({ transcript, searchQuery = "" }: TranscriptVie
     if (!speaker) return 'text-gray-600';
     const idx = parseInt((speaker||'').replace(/[^0-9]/g, '')) || 0;
     return speakerColors[idx % speakerColors.length];
+  };
+
+  // Helper function for highlighting search terms
+  const highlightText = (text: string, query: string) => {
+    if (!query || query.trim() === "") {
+      return text;
+    }
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <mark key={index} className="bg-yellow-300 dark:bg-yellow-500 px-0.5 rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
   };
 
   // Use utterances if available, otherwise fall back to segments (which AssemblyAI uses) or words
@@ -163,15 +216,36 @@ export function TranscriptViewer({ transcript, searchQuery = "" }: TranscriptVie
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 mb-2">
-        <button
-          className={`px-3 py-1 rounded ${!detailed ? "bg-primary text-white" : "bg-muted"}`}
-          onClick={() => setDetailed(false)}
-        >Simple</button>
-        <button
-          className={`px-3 py-1 rounded ${detailed ? "bg-primary text-white" : "bg-muted"}`}
-          onClick={() => setDetailed(true)}
-        >Detailed</button>
+      <div className="flex gap-2 mb-2 items-center">
+        {/* View Toggles using ToggleGroup */}
+        <ToggleGroup
+          type="single"
+          value={detailed ? "detailed" : "simple"}
+          onValueChange={(value) => {
+            if (value) setDetailed(value === "detailed")
+          }}
+        >
+          <ToggleGroupItem value="simple" aria-label="Simple view">
+            Simple
+          </ToggleGroupItem>
+          <ToggleGroupItem value="detailed" aria-label="Detailed view">
+            Detailed
+          </ToggleGroupItem>
+        </ToggleGroup>
+
+        {/* Spacer */}
+        <div className="flex-grow" />
+
+        {/* Copy Full Transcript Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => copySegmentText(transcript.text || '')}
+          disabled={!transcript.text}
+        >
+          {copied ? <CheckCheck className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+          Copy Full Transcript
+        </Button>
       </div>
 
       {showSimple ? (
@@ -195,7 +269,7 @@ export function TranscriptViewer({ transcript, searchQuery = "" }: TranscriptVie
                     </span>
                   </div>
                   <div className="text-base leading-relaxed whitespace-pre-line">
-                    {block.text}
+                    {highlightText(block.text, searchQuery)}
                   </div>
                 </div>
               ))}

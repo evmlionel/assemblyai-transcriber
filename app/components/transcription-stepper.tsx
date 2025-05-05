@@ -9,11 +9,11 @@ interface TranscriptionStepperProps {
 
 export function TranscriptionStepper({ currentStep }: TranscriptionStepperProps) {
   const steps = [
-    { id: 0, name: "Upload", icon: Upload },
+    { id: 0, name: "Select File", icon: Upload },
     { id: 1, name: "File Selected", icon: Check },
     { id: 2, name: "Uploading", icon: Upload },
     { id: 3, name: "Transcribing", icon: Headphones },
-    { id: 4, name: "Complete", icon: FileText },
+    { id: 4, name: "View Transcript", icon: FileText },
   ]
 
   return (

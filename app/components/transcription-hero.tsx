@@ -26,7 +26,7 @@ export function TranscriptionHero() {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="text-4xl md:text-5xl font-bold mb-3"
       >
-        AssemblyAI Transcriber
+        Effortless Session Transcription
       </motion.h1>
 
       <motion.p
@@ -35,7 +35,7 @@ export function TranscriptionHero() {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="text-xl text-muted-foreground max-w-2xl mx-auto"
       >
-        Transform your audio and video into accurate transcripts with speaker detection and timestamps
+        Quickly turn recordings into precise, speaker-labeled text documents. Save valuable time on documentation and focus on your clients.
       </motion.p>
 
       <motion.div

@@ -127,28 +127,34 @@ export default function TranscriptionPage() {
       setTranscript(transcriptData)
       setCurrentStep(4)
 
-      // Save recent transcription to localStorage (full transcript)
+      // Save recent transcription metadata and full data separately
       try {
-        const recents = JSON.parse(localStorage.getItem("recentTranscripts") || "[]")
-        const newEntry = {
-          id: transcriptData.id || Date.now().toString(),
+        const transcriptId = transcriptData.id || Date.now().toString();
+        const recentsMetadata = JSON.parse(localStorage.getItem("recentTranscripts") || "[]");
+        const newMetadataEntry = {
+          id: transcriptId,
           name: file?.name || "Audio",
           date: new Date().toISOString(),
           duration: transcriptData.audio_duration
             ? `${Math.floor(transcriptData.audio_duration / 60)}:${(Math.floor(transcriptData.audio_duration % 60)).toString().padStart(2, "0")}`
             : "--:--",
-          transcript: transcriptData,
-        }
+        };
+
+        // Store full transcript data separately
+        localStorage.setItem(`transcript_${transcriptId}`, JSON.stringify(transcriptData));
+
+        // Store metadata list (remove old entry if ID exists)
         localStorage.setItem(
           "recentTranscripts",
-          JSON.stringify([newEntry, ...recents.filter((t:any)=>t.id!==newEntry.id)])
-        )
-      } catch {}
+          JSON.stringify([newMetadataEntry, ...recentsMetadata.filter((t:any)=>t.id!==newMetadataEntry.id)].slice(0, 10)) // Limit to 10 recents
+        );
+      } catch (error) {
+        console.error("Failed to save transcript to localStorage:", error);
+      }
 
       toast({
         title: "Transcription complete",
         description: "Your file has been successfully transcribed!",
-        variant: "success",
       })
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred")
