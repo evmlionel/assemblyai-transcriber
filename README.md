@@ -1,6 +1,6 @@
 # AssemblyAI Transcriber
 
-This is a web application designed for speech therapists (Logopäden) and other medical/therapeutic professionals to easily create transcripts of audio files using AssemblyAI.
+This is a web application designed to easily create transcripts of audio files using AssemblyAI.
 
 ## Features
 
