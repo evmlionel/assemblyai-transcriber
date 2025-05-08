@@ -14,8 +14,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* [Node.js](https://nodejs.org/) (which includes npm or preferably use [Bun](https://bun.sh/))
-* An [AssemblyAI](https://www.assemblyai.com/) account and API key.
+Before you begin, ensure you have the following:
+
+* **Git:** For cloning the repository.
+* **Bun:** (Recommended) For package management and running scripts. Installation instructions can be found at [bun.sh](https://bun.sh).
+  * Alternatively, **Node.js** (which includes npm) or **pnpm** can be used.
+* An **AssemblyAI Account and API Key:** You'll need this to use the transcription service. You can sign up at [AssemblyAI](https://www.assemblyai.com/).
 
 ### Installation
 
